@@ -12,32 +12,53 @@ const categoryClassNames = {
   green: "border-emerald-100 bg-emerald-50 text-emerald-700",
   orange: "border-orange-100 bg-orange-50 text-orange-700",
   purple: "border-purple-100 bg-purple-50 text-purple-700",
+  slate: "border-slate-200 bg-slate-50 text-slate-700",
+};
+
+const logoColors = {
+  blue: "#1e3a5f",
+  green: "#059669",
+  orange: "#c2410c",
+  purple: "#7c3aed",
+  slate: "#475569",
 };
 
 const ratingSteps = [1, 2, 3, 4, 5];
 
 function StarRating({ rating }) {
-  const roundedRating = Math.round(rating);
+  const numericRating = Number(rating) || 0;
+  const roundedRating = Math.round(numericRating);
 
   return (
-    <div aria-label={`${rating.toFixed(1)} out of 5 stars`} className="flex items-center gap-1.5">
+    <div
+      aria-label={`${numericRating.toFixed(1)} out of 5 stars`}
+      className="flex items-center gap-1.5"
+    >
       <span aria-hidden="true" className="flex gap-0.5">
         {ratingSteps.map((step) => (
           <StarIcon
             className={`size-3 ${
-              step <= roundedRating
-                ? "text-amber-400"
-                : "text-gray-200"
+              step <= roundedRating ? "text-amber-400" : "text-gray-200"
             }`}
             key={step}
           />
         ))}
       </span>
       <span className="text-sm font-medium tabular-nums text-foreground">
-        {rating.toFixed(1)}
+        {numericRating.toFixed(1)}
       </span>
     </div>
   );
+}
+
+function getPlatformInitials(name) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
 }
 
 export default function PlatformCard({ platform }) {
@@ -48,9 +69,9 @@ export default function PlatformCard({ platform }) {
           <span
             aria-hidden="true"
             className="flex size-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold text-white"
-            style={{ backgroundColor: platform.logoColor }}
+            style={{ backgroundColor: logoColors[platform.categoryColor] }}
           >
-            {platform.logo}
+            {getPlatformInitials(platform.name)}
           </span>
           <div className="min-w-0">
             <h3 className="truncate text-sm font-semibold text-foreground">
@@ -77,12 +98,18 @@ export default function PlatformCard({ platform }) {
           <dd>{platform.countries}</dd>
         </div>
         <div className="flex items-center gap-2">
-          <CreditCardIcon aria-hidden="true" className="size-[11px] shrink-0" />
+          <CreditCardIcon
+            aria-hidden="true"
+            className="size-[11px] shrink-0"
+          />
           <dt className="sr-only">Payment methods</dt>
           <dd>{platform.payment.join(" · ")}</dd>
         </div>
         <div className="flex items-center gap-2">
-          <CurrencyDollarIcon aria-hidden="true" className="size-[11px] shrink-0" />
+          <CurrencyDollarIcon
+            aria-hidden="true"
+            className="size-[11px] shrink-0"
+          />
           <dt className="sr-only">Hourly rate</dt>
           <dd>{platform.hourlyRate}</dd>
         </div>

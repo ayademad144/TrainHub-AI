@@ -4,13 +4,18 @@ import Hero from "@/components/home/hero";
 import LatestGuides from "@/components/home/latest-guides";
 import Newsletter from "@/components/home/newsletter";
 import PlatformsGrid from "@/components/home/platforms-grid";
+import { getPlatforms } from "@/lib/supabase/platforms";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const platforms = await getPlatforms();
+
   return (
     <main className="focus:outline-none" id="main-content" tabIndex={-1}>
       <Hero />
       <Categories />
-      <PlatformsGrid />
+      <PlatformsGrid platforms={platforms} />
       <Features />
       <LatestGuides />
       <Newsletter />
