@@ -1,7 +1,7 @@
 import { siteConfig } from "@/lib/site-config";
 import "./globals.css";
 import { inter, plusJakartaSans } from "./fonts";
-
+import NavBar from "@/components/layout/navbar";
 export const metadata = {
   alternates: {
     canonical: "/",
@@ -71,7 +71,11 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${inter.variable} ${plusJakartaSans.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      
+      <body className="min-h-full flex flex-col">
+        <NavBar/>
+        {children}
+        </body>
     </html>
   );
 }

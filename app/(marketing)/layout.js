@@ -1,5 +1,5 @@
 import Footer from "@/components/layout/footer";
-import SiteHeader from "@/components/layout/site-header";
+// import SiteHeader from "@/components/layout/site-header";
 
 export default function MarketingLayout({ children }) {
   return (
@@ -10,7 +10,7 @@ export default function MarketingLayout({ children }) {
       >
         Skip to main content
       </a>
-      <SiteHeader />
+      {/* <SiteHeader /> */}
       {children}
       <Footer />
     </>
