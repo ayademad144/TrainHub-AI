@@ -54,6 +54,11 @@ const emptyForm = {
   payment: [],
   rating: "0",
   referralLinks: [{ projectName: "", referralLink: "" }],
+  requirements: [""],
+  howToPass: [""],
+  pros: [""],
+  cons: [""],
+  frequentlyAsked: [{ question: "", answer: "" }],
   slug: "",
   websiteUrl: "",
 };
@@ -73,6 +78,16 @@ function isValidHttpUrl(value) {
   } catch {
     return false;
   }
+}
+
+function normalizeTextList(value) {
+  return Array.isArray(value) && value.length > 0
+    ? value.map((item) => String(item || ""))
+    : [""];
+}
+
+function compactTextList(value) {
+  return value.map((item) => item.trim()).filter(Boolean);
 }
 
 function normalizePlatform(platform) {
@@ -111,6 +126,17 @@ function normalizePlatform(platform) {
               referralLink: legacyReferralLink,
             },
           ],
+    requirements: normalizeTextList(platform.requirements),
+    howToPass: normalizeTextList(platform.howToPass),
+    pros: normalizeTextList(platform.prosAndCons?.pros),
+    cons: normalizeTextList(platform.prosAndCons?.cons),
+    frequentlyAsked:
+      Array.isArray(platform.frequentlyAsked) && platform.frequentlyAsked.length > 0
+        ? platform.frequentlyAsked.map((item) => ({
+            question: item.question || "",
+            answer: item.answer || "",
+          }))
+        : [{ question: "", answer: "" }],
     slug: platform.slug || "",
     websiteUrl: platform.websiteUrl || "",
   };
@@ -157,6 +183,19 @@ function validateForm(form) {
     }
   });
 
+  form.frequentlyAsked.forEach((item, index) => {
+    const question = item.question.trim();
+    const answer = item.answer.trim();
+
+    if (question && !answer) {
+      errors[`faqAnswer-${index}`] = "Answer is required for this question.";
+    }
+
+    if (answer && !question) {
+      errors[`faqQuestion-${index}`] = "Question is required for this answer.";
+    }
+  });
+
   const rating = Number(form.rating);
   if (Number.isNaN(rating) || rating < 0 || rating > 5) {
     errors.rating = "Rating must be between 0 and 5.";
@@ -184,6 +223,18 @@ function buildPayload(form) {
     payment: form.payment,
     rating: Number(form.rating),
     referralLinks,
+    requirements: compactTextList(form.requirements),
+    howToPass: compactTextList(form.howToPass),
+    prosAndCons: {
+      pros: compactTextList(form.pros),
+      cons: compactTextList(form.cons),
+    },
+    frequentlyAsked: form.frequentlyAsked
+      .map((item) => ({
+        question: item.question.trim(),
+        answer: item.answer.trim(),
+      }))
+      .filter((item) => item.question || item.answer),
     slug: slugify(form.slug),
     websiteUrl: form.websiteUrl.trim(),
   };
@@ -223,6 +274,70 @@ function TextInput({
       />
       <FieldError>{error}</FieldError>
     </div>
+  );
+}
+
+function DynamicTextList({
+  errors,
+  items,
+  label,
+  name,
+  onAdd,
+  onRemove,
+  onUpdate,
+  placeholder,
+}) {
+  return (
+    <fieldset>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <legend className="text-sm font-semibold text-gray-900">{label}</legend>
+        <button
+          aria-label={`Add ${label}`}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+          onClick={() => onAdd(name)}
+          type="button"
+        >
+          <PlusIcon aria-hidden="true" className="h-5 w-5" />
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {items.map((item, index) => (
+          <div
+            className="grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 md:grid-cols-[minmax(0,1fr)_auto]"
+            key={index}
+          >
+            <TextInput
+              error={errors[`${name}-${index}`]}
+              id={`${name}-${index}`}
+              label={`${label} ${index + 1}`}
+              onChange={(event) => onUpdate(name, index, event.target.value)}
+              placeholder={placeholder}
+              value={item}
+            />
+
+            <div className="flex items-end gap-2">
+              <button
+                aria-label={`Add ${label}`}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+                onClick={() => onAdd(name)}
+                type="button"
+              >
+                <PlusIcon aria-hidden="true" className="h-5 w-5" />
+              </button>
+              <button
+                aria-label={`Remove ${label}`}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-100 bg-white text-red-600 transition-colors hover:border-red-200 hover:bg-red-50"
+                onClick={() => onRemove(name, index)}
+                type="button"
+              >
+                <XMarkIcon aria-hidden="true" className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -415,6 +530,70 @@ export default function PlatformForm({
       ...current,
       [`projectName-${index}`]: undefined,
       [`referralLink-${index}`]: undefined,
+    }));
+  };
+
+  const addTextListItem = (field) => {
+    setForm((current) => ({
+      ...current,
+      [field]: [...current[field], ""],
+    }));
+  };
+
+  const removeTextListItem = (field, index) => {
+    setForm((current) => ({
+      ...current,
+      [field]:
+        current[field].length === 1
+          ? [""]
+          : current[field].filter((_, itemIndex) => itemIndex !== index),
+    }));
+  };
+
+  const updateTextListItem = (field, index, value) => {
+    setForm((current) => ({
+      ...current,
+      [field]: current[field].map((item, itemIndex) =>
+        itemIndex === index ? value : item
+      ),
+    }));
+    setErrors((current) => ({
+      ...current,
+      [`${field}-${index}`]: undefined,
+    }));
+  };
+
+  const addFaqItem = () => {
+    setForm((current) => ({
+      ...current,
+      frequentlyAsked: [
+        ...current.frequentlyAsked,
+        { question: "", answer: "" },
+      ],
+    }));
+  };
+
+  const removeFaqItem = (index) => {
+    setForm((current) => ({
+      ...current,
+      frequentlyAsked:
+        current.frequentlyAsked.length === 1
+          ? [{ question: "", answer: "" }]
+          : current.frequentlyAsked.filter((_, itemIndex) => itemIndex !== index),
+    }));
+  };
+
+  const updateFaqItem = (index, field, value) => {
+    setForm((current) => ({
+      ...current,
+      frequentlyAsked: current.frequentlyAsked.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      ),
+    }));
+    setErrors((current) => ({
+      ...current,
+      [`faqQuestion-${index}`]: undefined,
+      [`faqAnswer-${index}`]: undefined,
     }));
   };
 
@@ -917,6 +1096,125 @@ export default function PlatformForm({
                   ))}
                 </div>
               </fieldset>
+
+              <div className="grid gap-5 md:col-span-2 md:grid-cols-2">
+                <DynamicTextList
+                  errors={errors}
+                  items={form.requirements}
+                  label="Requirements"
+                  name="requirements"
+                  onAdd={addTextListItem}
+                  onRemove={removeTextListItem}
+                  onUpdate={updateTextListItem}
+                  placeholder="Requirement details"
+                />
+
+                <DynamicTextList
+                  errors={errors}
+                  items={form.howToPass}
+                  label="How To Pass"
+                  name="howToPass"
+                  onAdd={addTextListItem}
+                  onRemove={removeTextListItem}
+                  onUpdate={updateTextListItem}
+                  placeholder="Step or tip"
+                />
+              </div>
+
+              <fieldset className="md:col-span-2">
+                <legend className="mb-3 text-sm font-semibold text-gray-900">
+                  Pros And Cons
+                </legend>
+                <div className="grid gap-5 md:grid-cols-2">
+                  <DynamicTextList
+                    errors={errors}
+                    items={form.pros}
+                    label="Pros"
+                    name="pros"
+                    onAdd={addTextListItem}
+                    onRemove={removeTextListItem}
+                    onUpdate={updateTextListItem}
+                    placeholder="Positive point"
+                  />
+
+                  <DynamicTextList
+                    errors={errors}
+                    items={form.cons}
+                    label="Cons"
+                    name="cons"
+                    onAdd={addTextListItem}
+                    onRemove={removeTextListItem}
+                    onUpdate={updateTextListItem}
+                    placeholder="Negative point"
+                  />
+                </div>
+              </fieldset>
+
+              <fieldset className="md:col-span-2">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <legend className="text-sm font-semibold text-gray-900">
+                    Frequently Asked
+                  </legend>
+                  <button
+                    aria-label="Add frequently asked question"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+                    onClick={addFaqItem}
+                    type="button"
+                  >
+                    <PlusIcon aria-hidden="true" className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {form.frequentlyAsked.map((item, index) => (
+                    <div
+                      className="grid gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+                      key={index}
+                    >
+                      <TextInput
+                        error={errors[`faqQuestion-${index}`]}
+                        id={`faqQuestion-${index}`}
+                        label={`Question ${index + 1}`}
+                        onChange={(event) =>
+                          updateFaqItem(index, "question", event.target.value)
+                        }
+                        placeholder="Common question"
+                        value={item.question}
+                      />
+
+                      <TextInput
+                        error={errors[`faqAnswer-${index}`]}
+                        id={`faqAnswer-${index}`}
+                        label={`Answer ${index + 1}`}
+                        onChange={(event) =>
+                          updateFaqItem(index, "answer", event.target.value)
+                        }
+                        placeholder="Helpful answer"
+                        value={item.answer}
+                      />
+
+                      <div className="flex items-end gap-2">
+                        <button
+                          aria-label="Add frequently asked question"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-700 transition-colors hover:border-gray-300 hover:bg-gray-50"
+                          onClick={addFaqItem}
+                          type="button"
+                        >
+                          <PlusIcon aria-hidden="true" className="h-5 w-5" />
+                        </button>
+                        <button
+                          aria-label="Remove frequently asked question"
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-100 bg-white text-red-600 transition-colors hover:border-red-200 hover:bg-red-50"
+                          onClick={() => removeFaqItem(index)}
+                          type="button"
+                        >
+                          <XMarkIcon aria-hidden="true" className="h-5 w-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </fieldset>
             </div>
           </section>
 
@@ -973,6 +1271,28 @@ export default function PlatformForm({
                     {
                       form.referralLinks.filter(
                         (item) => item.projectName.trim() || item.referralLink.trim()
+                      ).length
+                    }
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-gray-500">Requirements</dt>
+                  <dd className="font-medium text-gray-900">
+                    {compactTextList(form.requirements).length}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-gray-500">How to pass</dt>
+                  <dd className="font-medium text-gray-900">
+                    {compactTextList(form.howToPass).length}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="text-gray-500">FAQ</dt>
+                  <dd className="font-medium text-gray-900">
+                    {
+                      form.frequentlyAsked.filter(
+                        (item) => item.question.trim() || item.answer.trim()
                       ).length
                     }
                   </dd>
