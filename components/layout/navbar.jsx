@@ -80,7 +80,7 @@ export default function Navbar() {
               width={32}
             />
             <span className="hidden text-sm font-semibold text-foreground sm:block">
-              AI Training Models
+              Train Hub Ai
             </span>
           </Link>
 
