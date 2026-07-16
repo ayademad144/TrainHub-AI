@@ -1,11 +1,17 @@
 "use client";
 
-import { platformCategories, platforms } from "@/data/platforms";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import PlatformCard from "./platform-card";
 
-export default function PlatformsGrid() {
+export default function PlatformsGrid({ platforms = [] }) {
   const [activeCategory, setActiveCategory] = useState("All");
+  const platformCategories = useMemo(
+    () => [
+      "All",
+      ...new Set(platforms.map(({ category }) => category).filter(Boolean)),
+    ],
+    [platforms],
+  );
   const visiblePlatforms =
     activeCategory === "All"
       ? platforms

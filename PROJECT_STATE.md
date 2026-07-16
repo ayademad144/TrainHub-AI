@@ -2,9 +2,9 @@
 
 ## Current milestone
 
-Dependency compatibility, merge resolution, and JavaScript migration - complete on 2026-07-14.
+Dynamic homepage Platforms data - complete on 2026-07-17.
 
-The existing homepage, sign-in flow, and protected dashboard behavior are preserved. The project installs, lints, builds, and serves correctly with the dependency ranges required by `package.json`.
+The homepage Platforms section now reads every platform directly from Supabase while preserving its existing UI and client-side category filters. The route is rendered dynamically, so newly inserted rows are included on the next homepage request without editing application data files.
 
 ## Completed milestones
 
@@ -16,6 +16,7 @@ The existing homepage, sign-in flow, and protected dashboard behavior are preser
 - Milestone 6: Responsive semantic Footer.
 - Production hardening: metadata, crawler routes, social images, route-state UI, SEO, accessibility, and performance checks.
 - Compatibility migration: merge conflicts resolved in source, JavaScript-only application restored, and Next.js 15/React 18/Tailwind CSS 3 compatibility verified.
+- Dynamic Platforms integration: the homepage grid and its categories are populated from the Supabase `platforms` table with no hardcoded platform records or result limit.
 
 ## Remaining milestones
 
@@ -30,7 +31,9 @@ None. New pages, localization, backend features, or visual changes require a sep
 - `middleware.js` follows the Next.js 15 middleware convention and delegates cookie/session handling to `lib/supabase/middleware.js`.
 - Supabase browser and server clients use the public `@supabase/ssr` exports. Missing environment variables fail safely: public routes remain available and protected routes redirect to sign-in.
 - Components are Server Components by default. Client Components are limited to navigation/filter/form interaction and error recovery.
-- Static homepage content is separated into `data/` modules and rendered through reusable mapped components.
+- Non-platform static homepage content is separated into `data/` modules. Platform records come from the reusable server-only `getPlatforms()` data helper.
+- The marketing homepage uses `dynamic = "force-dynamic"`; every request reads the current platform rows from Supabase. The browser receives the result as props and performs category filtering locally without additional database requests.
+- The homepage query selects only fields rendered by `PlatformCard`. Detail-only JSON fields are not queried, and no platform-detail route or schema migration is part of this implementation.
 - Tailwind CSS 3 uses `tailwind.config.js`, `@tailwind` CSS directives, PostCSS, and Autoprefixer. Material Tailwind's `withMT` wrapper is retained because the dependency is explicitly required.
 - Global CSS contains only design tokens and global base behavior. Component styling remains in Tailwind utility classes.
 - Inter and Plus Jakarta Sans are loaded through `next/font` with Latin subsets and `display: "swap"`.
@@ -92,13 +95,13 @@ data/
   features.js
   footer.js
   guides.js
-  platforms.js
 lib/
   auth.js
   site-config.js
   supabase/
     client.js
     middleware.js
+    platforms.js
     server.js
 public/
   brand/
@@ -131,6 +134,24 @@ tailwind.config.js
 - `tailwind.config.js`
 - `scripts/next15-build.cjs`
 - `middleware.js` replaces the incompatible Next.js 16 `proxy.js` convention.
+
+## Files created in the dynamic Platforms integration
+
+- `lib/supabase/platforms.js`
+
+## Files modified in the dynamic Platforms integration
+
+- `app/(marketing)/page.jsx`
+- `components/home/platforms-grid.jsx`
+- `components/home/platform-card.jsx`
+- `PROJECT_STATE.md`
+- `CHANGELOG.md`
+- `TODO.md`
+
+## Files removed in the dynamic Platforms integration
+
+- `data/platforms.js`
+- The unfinished `components/platform/` details components and empty details-route folders from the cancelled scope.
 
 ## Files modified in the compatibility migration
 
@@ -180,6 +201,9 @@ No package outside the dependency names and ranges specified by the user was add
 - `npm install`: passes; lockfile and installed dependency tree match `package.json`.
 - `npm run lint`: passes with no ESLint errors or warnings.
 - `npm run build`: passes on Next.js `15.5.20`; all expected application and metadata routes compile.
+- Live Supabase query: passes against the configured `platforms` table and returns all current rows with the exact homepage columns.
+- Homepage build output: `/` is server-rendered on demand (`ƒ`) and is not statically cached.
+- Production runtime smoke test: `/` returns `200` and its server-rendered HTML contains a platform name read from Supabase.
 - `npm ls --depth=0`: clean dependency tree with the requested top-level packages only.
 - Source conflict-marker scan: clean.
 - JavaScript-only source scan: no `.ts`, `.tsx`, or `.d.ts` project files.
@@ -193,9 +217,10 @@ No package outside the dependency names and ranges specified by the user was add
 - Webpack reports non-fatal cache serialization warnings for large strings; they do not affect build correctness or runtime output.
 - Source files contain no conflict markers and all validations pass, but this execution sandbox cannot write `.git/index`. Git can continue showing historical `UU` entries until `git add package.json package-lock.json app/globals.css` is run from a normal local shell.
 - Supabase authentication requires `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in the deployment environment.
+- Public homepage platform reads require a Supabase Row Level Security policy that permits the intended anonymous `SELECT`; the configured project currently returns rows successfully.
 - Several design links target future routes that are not implemented and correctly resolve to the custom 404.
 - Newsletter submission remains local UI only; localization and verified social destinations remain future scope.
 
 ## Next milestone
 
-None. The approved implementation and compatibility scope is complete.
+None. Platform detail pages and Supabase Realtime push subscriptions remain separate, unapproved scopes.

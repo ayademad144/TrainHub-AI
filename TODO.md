@@ -1,5 +1,17 @@
 # Project Checklist
 
+## Completed dynamic Platforms integration
+
+- [x] Read all homepage platform cards from the Supabase `platforms` table.
+- [x] Remove the hardcoded platform records from `data/platforms.js`.
+- [x] Generate category filters from database results.
+- [x] Render every returned row without a fixed platform limit.
+- [x] Force dynamic homepage rendering so new rows appear on the next request.
+- [x] Remove the cancelled platform-details components and empty route folders.
+- [x] Verify the configured Supabase query against the live database.
+- [x] Run `npm run lint` successfully with no warnings.
+- [x] Run `npm run build` successfully.
+
 ## Completed compatibility migration
 
 - [x] Preserve the completed homepage UI and interaction behavior.
