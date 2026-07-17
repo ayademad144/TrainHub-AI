@@ -691,7 +691,7 @@ export default function PlatformForm({
       }
 
       if (redirectOnSuccess) {
-        router.push("/platforms");
+        router.push("/#featured-platforms");
       }
     } catch (error) {
       const errorMessage =

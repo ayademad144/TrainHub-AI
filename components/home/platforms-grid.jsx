@@ -21,6 +21,7 @@ export default function PlatformsGrid({ platforms = [] }) {
     <section
       aria-labelledby="featured-platforms-title"
       className="bg-white px-4 py-20 sm:px-6 lg:px-8"
+      id="featured-platforms"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 text-center">

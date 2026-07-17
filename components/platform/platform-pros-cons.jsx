@@ -20,7 +20,7 @@ export default function PlatformProsCons({ cons = [], pros = [] }) {
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {pros.length > 0 ? (
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-5">
+          <div className="rounded-xl border border-emerald-100 bg-green-50 p-5">
             <div className="mb-3 flex items-center gap-2">
               <HandThumbUpIcon
                 aria-hidden="true"

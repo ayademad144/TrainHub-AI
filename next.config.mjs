@@ -16,6 +16,11 @@ const nextConfig = {
         pathname: "/wp-content/uploads/**",
         protocol: "https",
       },
+      {
+        hostname:"www.onlc.com",
+        pathname: "/blog/wp-content/uploads/**",
+        protocol: "https",
+      }
     ],
   },
 };
