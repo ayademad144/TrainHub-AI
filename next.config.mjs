@@ -11,6 +11,11 @@ const nextConfig = {
         pathname: "/photo-*",
         protocol: "https",
       },
+      {
+        hostname: "learningmole.com",
+        pathname: "/wp-content/uploads/**",
+        protocol: "https",
+      },
     ],
   },
 };
