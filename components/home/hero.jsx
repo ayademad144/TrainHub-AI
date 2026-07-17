@@ -1,7 +1,5 @@
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import HeroPlatformPreview from "./hero-platform-preview";
-
 export default function Hero() {
   return (
     <section
@@ -43,7 +41,6 @@ export default function Hero() {
           </Link>
         </div>
 
-        <HeroPlatformPreview />
       </div>
     </section>
   );
