@@ -1,6 +1,4 @@
-import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { guides } from "@/data/guides";
-import Link from "next/link";
 import GuideCard from "./guide-card";
 
 export default function LatestGuides() {
@@ -22,13 +20,6 @@ export default function LatestGuides() {
               Practical, up-to-date guides to help you get started and succeed.
             </p>
           </div>
-          <Link
-            className="flex items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-blue-600 transition-colors hover:text-blue-700"
-            href="/guides"
-          >
-            View all guides
-            <ArrowRightIcon aria-hidden="true" className="size-3.5" />
-          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
