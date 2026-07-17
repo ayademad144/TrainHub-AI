@@ -16,6 +16,7 @@ export default function PlatformCard({ platform }) {
         <div className="flex min-w-0 items-center gap-3">
           <PlatformLogo
             categoryColor={platform.categoryColor}
+            image={platform.image}
             name={platform.name}
           />
           <div className="min-w-0">

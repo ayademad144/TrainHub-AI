@@ -70,7 +70,7 @@ export default function AboutPage() {
               height={720}
               priority
               sizes="(min-width: 1024px) 42vw, 100vw"
-              src="https://learningmole.com/wp-content/uploads/2025/08/v2-zkoqd-ybdxn.jpg"
+              src="https://www.onlc.com/blog/wp-content/uploads/2023/12/ai-specialist-2001x1332-1.png"
               width={900}
             />
           </div>

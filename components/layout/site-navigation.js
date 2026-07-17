@@ -1,6 +1,6 @@
 export const siteNavigation = [
   { href: "/", label: "Home" },
-  { href: "/platforms", label: "Platforms" },
+  { href: "/#featured-platforms", label: "Platforms" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
