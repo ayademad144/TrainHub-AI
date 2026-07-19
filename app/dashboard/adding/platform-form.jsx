@@ -43,6 +43,14 @@ const categoryColorOptions = [
   { label: "Slate", value: "slate", className: "bg-slate-500" },
 ];
 
+async function refreshPublicPlatformCache() {
+  try {
+    await fetch("/api/revalidate-platforms", {
+      method: "POST",
+    });
+  } catch {}
+}
+
 const emptyForm = {
   allProjectsReferralLink: "",
   category: "AI Training",
@@ -681,6 +689,8 @@ export default function PlatformForm({
         throw error;
       }
 
+      await refreshPublicPlatformCache();
+
       setMessage({
         text: isUpdating
           ? "Platform updated successfully."
@@ -761,6 +771,8 @@ export default function PlatformForm({
       if (error) {
         throw error;
       }
+
+      await refreshPublicPlatformCache();
 
       await Swal.fire({
         icon: "success",

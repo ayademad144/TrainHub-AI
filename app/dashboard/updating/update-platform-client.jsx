@@ -27,6 +27,14 @@ import {
 
 const TABLE_NAME = "platforms";
 
+async function refreshPublicPlatformCache() {
+  try {
+    await fetch("/api/revalidate-platforms", {
+      method: "POST",
+    });
+  } catch {}
+}
+
 function getPlatformKey(platform) {
   return platform?.id ?? platform?.slug;
 }
@@ -235,6 +243,8 @@ export default function UpdatePlatformClient() {
       if (error) {
         throw error;
       }
+
+      await refreshPublicPlatformCache();
 
       await Swal.fire({
         title: "Deleted!",

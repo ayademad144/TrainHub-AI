@@ -2,12 +2,12 @@ import Features from "@/components/home/features";
 import Hero from "@/components/home/hero";
 import LatestGuides from "@/components/home/latest-guides";
 import PlatformsGrid from "@/components/home/platforms-grid";
-import { getPlatforms } from "@/lib/supabase/platforms";
+import { getCachedPlatforms } from "@/lib/supabase/platforms";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function HomePage() {
-  const platforms = await getPlatforms();
+  const platforms = await getCachedPlatforms();
 
   return (
     <main className="focus:outline-none" id="main-content" tabIndex={-1}>
