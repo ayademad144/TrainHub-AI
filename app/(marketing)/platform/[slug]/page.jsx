@@ -7,16 +7,16 @@ import PlatformPayment from "@/components/platform/platform-payment";
 import PlatformProsCons from "@/components/platform/platform-pros-cons";
 import PlatformSidebar from "@/components/platform/platform-sidebar";
 import {
-  getPlatformBySlug,
-  getPlatformPageData,
+  getCachedPlatformBySlug,
+  getCachedPlatformPageData,
 } from "@/lib/supabase/platforms";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const platform = await getPlatformBySlug(slug);
+  const platform = await getCachedPlatformBySlug(slug);
 
   if (!platform) {
     notFound();
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }) {
 
 export default async function PlatformDetailsPage({ params }) {
   const { slug } = await params;
-  const { platform, relatedPlatforms } = await getPlatformPageData(slug);
+  const { platform, relatedPlatforms } = await getCachedPlatformPageData(slug);
 
   if (!platform) {
     notFound();
