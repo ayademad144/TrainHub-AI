@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 export default function GuideCard({ guide }) {
   const t = useTranslations("Guides");
   const homeT = useTranslations("Home");
-  const title = t(guide.titleKey);
+  const title = guide.title;
 
   return (
     <article className="group relative overflow-hidden rounded-xl border border-border bg-white transition-shadow hover:shadow-md">
@@ -26,17 +26,17 @@ export default function GuideCard({ guide }) {
         </p>
         <div className="mb-3 flex items-center gap-2.5">
           <span className="rounded-full border border-border bg-gray-100 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-            {t(guide.categoryKey)}
+            {(guide.category)}
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {t(guide.readTimeKey)}
+            {(guide.readTime)}
           </span>
         </div>
         <h3 className="mb-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-blue-600">
           {title}
         </h3>
         <p className="mb-4 line-clamp-3 text-xs leading-relaxed text-muted-foreground">
-          {t(guide.excerptKey)}
+          {(guide.excerpt)}
         </p>
         <Link
           aria-label={`Read ${guide.title}`}
