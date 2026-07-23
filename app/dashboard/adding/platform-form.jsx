@@ -100,14 +100,38 @@ function compactTextList(value) {
   return value.map((item) => item.trim()).filter(Boolean);
 }
 
+function normalizeReferralLinkItems(value) {
+  const referralLinks = Array.isArray(value) ? value : value ? [value] : [];
+
+  const normalizedLinks = referralLinks.map((item) => {
+    if (typeof item === "string") {
+      return {
+        projectName: "",
+        referralLink: item,
+      };
+    }
+
+    return {
+      projectName: item?.projectName || item?.label || "",
+      referralLink: item?.referralLink || item?.url || item?.href || "",
+    };
+  });
+
+  return normalizedLinks.length > 0
+    ? normalizedLinks
+    : [
+        {
+          projectName: "",
+          referralLink: "",
+        },
+      ];
+}
+
 function normalizePlatform(platform) {
   if (!platform) {
     return emptyForm;
   }
 
-  const referralLinks = Array.isArray(platform.referralLinks)
-    ? platform.referralLinks
-    : [];
   const legacyReferralLink =
     typeof platform.referralLink === "string" ? platform.referralLink : "";
 
@@ -127,18 +151,7 @@ function normalizePlatform(platform) {
       platform.rating === null || platform.rating === undefined
         ? "0"
         : String(platform.rating),
-    referralLinks:
-      referralLinks.length > 0
-        ? referralLinks.map((item) => ({
-            projectName: item.projectName || "",
-            referralLink: item.referralLink || "",
-          }))
-        : [
-            {
-              projectName: "",
-              referralLink: "",
-            },
-          ],
+    referralLinks: normalizeReferralLinkItems(platform.referralLinks),
     requirements: normalizeTextList(platform.requirements),
     howToPass: normalizeTextList(platform.howToPass),
     pros: normalizeTextList(platform.prosAndCons?.pros),
